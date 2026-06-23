@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Reto Valiente de Pedro 🌲</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FBF3E3;
+    --cream-2:#F3E7CC;
+    --bark:#5B3A22;
+    --bark-2:#7A5230;
+    --pumpkin:#E8782E;
+    --pumpkin-deep:#C95F1C;
+    --forest:#3C7A5C;
+    --forest-deep:#2C5C44;
+    --sky:#3E7CB8;
+    --sky-deep:#2C5C8C;
+    --berry:#C0436B;
+    --gold:#E8B339;
+    --coral:#D9534F;
+    --paper:#FFFDF7;
+    --ink:#3A2C1E;
+    --radius:22px;
+    --shadow: 0 8px 0 rgba(91,58,34,0.15);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Quicksand',sans-serif;
+    background:
+      radial-gradient(circle at 10% 10%, rgba(232,179,57,0.18), transparent 40%),
+      radial-gradient(circle at 90% 85%, rgba(60,122,92,0.16), transparent 45%),
+      var(--cream);
+    color:var(--ink);
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+
+  h1,h2,h3,.display{
+    font-family:'Baloo 2', sans-serif;
+    margin:0;
+  }
+
+  button{font-family:inherit;}
+
+  /* ---------- BACKGROUND TREES ---------- */
+  .bg-trees{
+    position:fixed; inset:0; pointer-events:none; z-index:0; opacity:0.5;
+  }
+  .bg-trees svg{position:absolute;}
+
+  /* ---------- TOP BAR ---------- */
+  .topbar{
+    position:relative; z-index:2;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 28px;
+    background:linear-gradient(180deg, var(--forest), var(--forest-deep));
+    color:var(--paper);
+    box-shadow:0 4px 0 rgba(0,0,0,0.12);
+  }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand .badge{
+    width:46px;height:46px;border-radius:50%;
+    background:var(--gold); display:flex; align-items:center; justify-content:center;
+    font-size:24px; box-shadow:inset 0 -4px 0 rgba(0,0,0,0.15);
+  }
+  .brand h1{font-size:1.4rem; color:var(--paper); letter-spacing:0.3px;}
+  .brand p{margin:0; font-size:0.78rem; opacity:0.85; font-weight:600;}
+
+  .stats{display:flex; gap:18px; align-items:center;}
+  .stat{
+    display:flex; align-items:center; gap:7px;
+    background:rgba(255,255,255,0.14);
+    border-radius:999px; padding:7px 14px;
+    font-weight:700; font-size:0.9rem;
+  }
+  .lives{display:flex; gap:3px; font-size:1.05rem;}
+
+  /* ---------- MAIN WRAP ---------- */
+  .wrap{position:relative; z-index:1; max-width:1080px; margin:0 auto; padding:36px 24px 80px;}
+
+  .intro{
+    display:flex; gap:22px; align-items:center;
+    background:var(--paper);
+    border:3px solid var(--bark-2);
+    border-radius:var(--radius);
+    padding:22px 26px;
+    box-shadow:var(--shadow);
+    margin-bottom:34px;
+  }
+  .intro .bear{font-size:3.2rem; flex-shrink:0;}
+  .intro h2{font-size:1.25rem; color:var(--forest-deep); margin-bottom:6px;}
+  .intro p{margin:0; font-size:0.95rem; line-height:1.45; color:var(--bark);}
+
+  .section-title{
+    display:flex; align-items:baseline; gap:10px; margin:38px 0 16px;
+  }
+  .section-title h2{font-size:1.4rem; color:var(--bark);}
+  .section-title .count{font-size:0.85rem; color:var(--bark-2); font-weight:700;}
+
+  /* ---------- STATION CARDS ---------- */
+  .stations{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(230px,1fr));
+    gap:18px;
+  }
+  .station{
+    position:relative;
+    background:var(--paper);
+    border-radius:var(--radius);
+    border:3px solid transparent;
+    padding:20px 18px 18px;
+    cursor:pointer;
+    box-shadow:var(--shadow);
+    transition:transform .15s ease, box-shadow .15s ease;
+    text-align:left;
+    overflow:hidden;
+  }
+  .station:hover{transform:translateY(-4px);}
+  .station:active{transform:translateY(2px); box-shadow:0 3px 0 rgba(91,58,34,0.15);}
+  .station .icon{font-size:2.1rem;}
+  .station h3{font-size:1.05rem; margin:10px 0 4px; color:var(--ink);}
+  .station p{margin:0; font-size:0.82rem; color:var(--bark-2); line-height:1.35;}
+  .station .ring{
+    position:absolute; top:14px; right:14px;
+    width:40px; height:40px; border-radius:50%;
+    background:var(--cream-2);
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.75rem; font-weight:800; color:var(--forest-deep);
+    border:3px solid var(--cream-2);
+  }
+  .station.sounds{border-color:var(--pumpkin);}
+  .station.sounds .ring{border-color:var(--pumpkin); color:var(--pumpkin-deep);}
+  .station.rules{border-color:var(--sky);}
+  .station.rules .ring{border-color:var(--sky); color:var(--sky-deep);}
+  .station.final{border-color:var(--berry); background:linear-gradient(135deg, #fff, #FFF1F6);}
+  .station.final .ring{border-color:var(--berry); color:var(--berry);}
+
+  /* ---------- FOOTER NOTE ---------- */
+  .footnote{
+    text-align:center; margin-top:50px; font-size:0.8rem; color:var(--bark-2); opacity:0.8;
+  }
+
+  /* ================= QUIZ SCREEN ================= */
+  .quiz-screen{
+    display:none;
+    position:fixed; inset:0; z-index:50;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(232,179,57,0.15), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(60,122,92,0.18), transparent 45%),
+      var(--cream);
+    overflow-y:auto;
+  }
+  .quiz-screen.active{display:block;}
+
+  .quiz-top{
+    position:sticky; top:0; z-index:5;
+    background:linear-gradient(180deg, var(--forest), var(--forest-deep));
+    padding:14px 22px; display:flex; align-items:center; gap:16px;
+    box-shadow:0 4px 0 rgba(0,0,0,0.12);
+  }
+  .quiz-back{
+    background:rgba(255,255,255,0.18); border:none; color:var(--paper);
+    border-radius:999px; padding:9px 16px; font-weight:700; font-size:0.85rem;
+    cursor:pointer; display:flex; align-items:center; gap:6px;
+  }
+  .quiz-back:hover{background:rgba(255,255,255,0.28);}
+  .progress-track{
+    flex:1; height:14px; background:rgba(255,255,255,0.2); border-radius:999px; overflow:hidden;
+  }
+  .progress-fill{
+    height:100%; background:var(--gold); border-radius:999px; width:0%;
+    transition:width .35s ease;
+  }
+  .quiz-top .qlabel{color:var(--paper); font-weight:800; font-size:0.85rem; white-space:nowrap;}
+  .quiz-top .lives{color:var(--paper);}
+
+  .quiz-body{
+    max-width:760px; margin:0 auto; padding:34px 22px 90px;
+  }
+
+  .q-card{
+    background:var(--paper);
+    border-radius:28px;
+    border:3px solid var(--bark-2);
+    padding:30px 28px;
+    box-shadow:var(--shadow);
+  }
+  .q-eyebrow{
+    display:inline-block; font-size:0.75rem; font-weight:800; letter-spacing:0.6px;
+    color:var(--forest-deep); background:var(--cream-2);
+    padding:5px 12px; border-radius:999px; margin-bottom:14px;
+  }
+  .q-text{font-size:1.3rem; line-height:1.4; color:var(--ink); margin-bottom:22px;}
+  .q-text .target{color:var(--pumpkin-deep); font-weight:800;}
+  .q-hint-btn{
+    background:none; border:2px dashed var(--sky); color:var(--sky-deep);
+    border-radius:14px; padding:8px 14px; font-weight:700; font-size:0.8rem; cursor:pointer;
+    margin-bottom:18px;
+  }
+  .q-hint-btn:hover{background:rgba(62,124,184,0.08);}
+  .q-hint{
+    display:none; background:#EAF3FB; border-radius:14px; padding:12px 16px;
+    font-size:0.88rem; color:var(--sky-deep); margin-bottom:18px; line-height:1.4;
+  }
+  .q-hint.show{display:block;}
+
+  .options{display:grid; gap:12px;}
+  .opt{
+    display:flex; align-items:center; gap:12px;
+    background:var(--cream); border:3px solid var(--cream-2);
+    border-radius:16px; padding:14px 16px;
+    font-size:1.05rem; font-weight:700; color:var(--ink);
+    cursor:pointer; text-align:left;
+    transition:transform .1s ease, border-color .15s ease, background .15s ease;
+  }
+  .opt:hover{border-color:var(--sky); transform:translateX(3px);}
+  .opt .letter{
+    width:30px;height:30px;border-radius:50%;
+    background:var(--paper); display:flex; align-items:center; justify-content:center;
+    font-size:0.85rem; font-weight:800; color:var(--bark-2); flex-shrink:0;
+    border:2px solid var(--cream-2);
+  }
+  .opt.correct{background:#E5F4EC; border-color:var(--forest); color:var(--forest-deep);}
+  .opt.correct .letter{background:var(--forest); color:#fff; border-color:var(--forest);}
+  .opt.wrong{background:#FCEAEA; border-color:var(--coral); color:#8a2f2c;}
+  .opt.wrong .letter{background:var(--coral); color:#fff; border-color:var(--coral);}
+  .opt.disabled{cursor:default; pointer-events:none; opacity:0.55;}
+  .opt.disabled.correct, .opt.disabled.wrong{opacity:1;}
+
+  .feedback{
+    margin-top:18px; padding:14px 18px; border-radius:14px;
+    font-weight:700; font-size:0.95rem; display:none; align-items:center; gap:10px;
+  }
+  .feedback.show{display:flex;}
+  .feedback.good{background:#E5F4EC; color:var(--forest-deep);}
+  .feedback.bad{background:#FCEAEA; color:#8a2f2c;}
+
+  .next-btn{
+    display:none; margin-top:20px; width:100%;
+    background:var(--pumpkin); color:#fff; border:none;
+    border-radius:16px; padding:14px; font-size:1.05rem; font-weight:800;
+    cursor:pointer; box-shadow:0 5px 0 var(--pumpkin-deep);
+  }
+  .next-btn:active{transform:translateY(3px); box-shadow:0 2px 0 var(--pumpkin-deep);}
+  .next-btn.show{display:block;}
+
+  /* ---------- RESULTS ---------- */
+  .results{
+    display:none; text-align:center; padding:20px 10px;
+  }
+  .results.show{display:block;}
+  .medal{font-size:5rem; margin-bottom:6px;}
+  .results h2{font-size:1.7rem; color:var(--bark); margin-bottom:6px;}
+  .results .score-big{font-size:2.6rem; font-weight:800; color:var(--forest-deep); font-family:'Baloo 2';}
+  .results p.msg{font-size:1.05rem; color:var(--bark-2); margin:10px 0 26px;}
+  .results-actions{display:flex; gap:12px; justify-content:center; flex-wrap:wrap;}
+  .btn{
+    border:none; border-radius:14px; padding:13px 22px; font-weight:800; font-size:0.95rem; cursor:pointer;
+  }
+  .btn.primary{background:var(--forest); color:#fff; box-shadow:0 5px 0 var(--forest-deep);}
+  .btn.secondary{background:var(--cream-2); color:var(--bark); box-shadow:0 5px 0 #d8c7a3;}
+  .btn:active{transform:translateY(3px); box-shadow:0 2px 0 rgba(0,0,0,0.15);}
+
+  .review-list{
+    text-align:left; margin-top:30px; border-top:2px dashed var(--cream-2); padding-top:20px;
+  }
+  .review-item{
+    display:flex; gap:10px; padding:10px 0; font-size:0.9rem; align-items:flex-start;
+  }
+  .review-item .ic{font-size:1.1rem; flex-shrink:0;}
+  .review-item.miss{color:#8a2f2c;}
+  .review-item.hit{color:var(--forest-deep);}
+
+  @media (max-width:600px){
+    .topbar{padding:14px 16px;}
+    .brand h1{font-size:1.1rem;}
+    .stats{gap:10px;}
+    .stat{padding:6px 10px; font-size:0.8rem;}
+    .q-text{font-size:1.12rem;}
+    .q-card{padding:22px 18px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important; animation:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-trees">
+  <svg width="100%" height="100%" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+    <g fill="#3C7A5C" opacity="0.35">
+      <path d="M80 600 L130 480 L180 600 Z"/>
+      <path d="M60 630 L130 460 L200 630 Z" opacity="0.5"/>
+      <path d="M1020 650 L1080 500 L1140 650 Z"/>
+      <path d="M1000 690 L1080 480 L1160 690 Z" opacity="0.5"/>
+    </g>
+  </svg>
+</div>
+
+<!-- ============ DASHBOARD ============ -->
+<div id="dashboard">
+  <div class="topbar">
+    <div class="brand">
+      <div class="badge">🐻</div>
+      <div>
+        <h1>El Reto Valiente de Pedro</h1>
+        <p>2do EGB · Practicando con el osito Remember!</p>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat">⭐ <span id="bestScore">0%</span> mejor puntaje</div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="intro">
+      <div class="bear">🐻</div>
+      <div>
+        <h2>¡Hola, Pedro! Vamos a practicar para tu examen</h2>
+        <p>Elige una estación del bosque para practicar. Puedes repetir cada reto las veces que quieras. ¡Al final ganarás una medalla según tu puntaje!</p>
+      </div>
+    </div>
+
+    <div class="section-title">
+      <h2>🍂 Special Sounds — Sonidos especiales</h2>
+      <span class="count" id="soundsCount"></span>
+    </div>
+    <div class="stations" id="soundsStations"></div>
+
+    <div class="section-title">
+      <h2>📘 Rules — Prefijos, sufijos y contracciones</h2>
+      <span class="count" id="rulesCount"></span>
+    </div>
+    <div class="stations" id="rulesStations"></div>
+
+    <div class="section-title">
+      <h2>🏅 El Reto Final</h2>
+    </div>
+    <div class="stations" id="finalStations"></div>
+
+    <p class="footnote">Hecho con cariño para que Pedro brille en su Reto Valiente 💛</p>
+  </div>
+</div>
+
+<!-- ============ QUIZ SCREEN ============ -->
+<div class="quiz-screen" id="quizScreen">
+  <div class="quiz-top">
+    <button class="quiz-back" id="backBtn">← Salir</button>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="qlabel" id="qLabel">1 / 10</div>
+    <div class="lives" id="livesDisplay">❤️❤️❤️</div>
+  </div>
+
+  <div class="quiz-body">
+    <div class="q-card" id="qCard">
+      <span class="q-eyebrow" id="qEyebrow">SONIDO ESPECIAL</span>
+      <div class="q-text" id="qText">Pregunta aquí</div>
+      <button class="q-hint-btn" id="hintBtn">💡 Pista</button>
+      <div class="q-hint" id="qHint"></div>
+      <div class="options" id="optionsBox"></div>
+      <div class="feedback" id="feedback"></div>
+      <button class="next-btn" id="nextBtn">Siguiente →</button>
+    </div>
+
+    <div class="results" id="resultsCard">
+      <div class="medal" id="resultMedal">🏅</div>
+      <h2 id="resultTitle">¡Buen trabajo!</h2>
+      <div class="score-big" id="resultScore">8/10</div>
+      <p class="msg" id="resultMsg">Mensaje motivador</p>
+      <div class="results-actions">
+        <button class="btn primary" id="retryBtn">🔁 Intentar de nuevo</button>
+        <button class="btn secondary" id="homeBtn">🏠 Volver al mapa</button>
+      </div>
+      <div class="review-list" id="reviewList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===================== BANCO DE PREGUNTAS ===================== */
+/* Basado en AA_Special_Sounds_imagenes.pdf y AAA_Rules_imagenes.pdf */
+
+const soundsBank = [
+  {sound:"ck", word:"duck", text:"¿Qué palabra tiene el sonido <span class='target'>ck</span> como en <b>duck</b>?", options:["back","play","stem","frost"], answer:0, hint:"Busca la palabra que termina con el sonido 'k' fuerte de 'ck'."},
+  {sound:"ay", word:"pray", text:"¿Qué palabra tiene el sonido <span class='target'>ay</span> como en <b>pray</b>?", options:["stem","day","stove","toast"], answer:1, hint:"El sonido 'ay' suena como decir la letra A larga."},
+  {sound:"st", word:"stop", text:"¿Qué palabra empieza con el sonido <span class='target'>st</span> como en <b>stop</b>?", options:["stay","day","hay","ray"], answer:0, hint:"Busca la palabra que empieza con 's' y 't' juntas."},
+  {sound:"pl", word:"plane", text:"¿Qué palabra empieza con el sonido <span class='target'>pl</span> como en <b>plane</b>?", options:["plug","free","drop","frog"], answer:0, hint:"El sonido 'pl' se escucha al inicio, como en 'plug'."},
+  {sound:"fr", word:"frog", text:"¿Qué palabra empieza con el sonido <span class='target'>fr</span> como en <b>frog</b>?", options:["plan","frost","plate","drape"], answer:1, hint:"Busca la palabra que empieza con 'f' y 'r' juntas."},
+  {sound:"tr", word:"train", text:"¿Qué palabra empieza con el sonido <span class='target'>tr</span> como en <b>train</b>?", options:["shed","trip","shell","cash"], answer:1, hint:"El sonido 'tr' se escucha como en 'tren' en inglés."},
+  {sound:"sh", word:"ship", text:"¿Qué palabra empieza con el sonido <span class='target'>sh</span> como en <b>ship</b>?", options:["trim","track","shed","trade"], answer:2, hint:"Busca la palabra que empieza con el sonido 'shh'."},
+  {sound:"th (thick)", word:"thick", text:"¿Qué palabra tiene el sonido <span class='target'>th</span> (suave) como en <b>thick</b>?", options:["than","thin","then","thus"], answer:1, hint:"Este 'th' suena soplando, no vibrando la garganta."},
+  {sound:"th (this)", word:"this", text:"¿Qué palabra tiene el sonido <span class='target'>th</span> (vibrante) como en <b>this</b>?", options:["thin","bath","than","path"], answer:2, hint:"Este 'th' vibra en la garganta, como en 'that'."},
+  {sound:"bl", word:"block", text:"¿Qué palabra empieza con el sonido <span class='target'>bl</span> como en <b>block</b>?", options:["clash","blend","clip","club"], answer:1, hint:"Busca la palabra que empieza con 'b' y 'l' juntas."},
+  {sound:"cl", word:"clock", text:"¿Qué palabra empieza con el sonido <span class='target'>cl</span> como en <b>clock</b>?", options:["bless","blaze","clam","blond"], answer:2, hint:"Busca la palabra que empieza con 'c' y 'l' juntas."},
+  {sound:"fl", word:"flake", text:"¿Qué palabra empieza con el sonido <span class='target'>fl</span> como en <b>flake</b>?", options:["glad","flute","glide","globe"], answer:1, hint:"Busca la palabra que empieza con 'f' y 'l' juntas."},
+  {sound:"gl", word:"glue", text:"¿Qué palabra empieza con el sonido <span class='target'>gl</span> como en <b>glue</b>?", options:["flame","flag","glass","flock"], answer:2, hint:"Busca la palabra que empieza con 'g' y 'l' juntas."},
+  {sound:"br", word:"bride", text:"¿Qué palabra empieza con el sonido <span class='target'>br</span> como en <b>bride</b>?", options:["drape","brush","drive","dream"], answer:1, hint:"Busca la palabra que empieza con 'b' y 'r' juntas."},
+  {sound:"dr", word:"drum", text:"¿Qué palabra empieza con el sonido <span class='target'>dr</span> como en <b>drum</b>?", options:["brass","brake","drain","brick"], answer:2, hint:"Busca la palabra que empieza con 'd' y 'r' juntas."},
+  {sound:"pr", word:"pray", text:"¿Qué palabra empieza con el sonido <span class='target'>pr</span> como en <b>pray</b>?", options:["grape","prize","green","grass"], answer:1, hint:"Busca la palabra que empieza con 'p' y 'r' juntas."},
+  {sound:"gr", word:"grin", text:"¿Qué palabra empieza con el sonido <span class='target'>gr</span> como en <b>grin</b>?", options:["prune","pry","grill","prick"], answer:2, hint:"Busca la palabra que empieza con 'g' y 'r' juntas."},
+  {sound:"sc", word:"scat", text:"¿Qué palabra empieza con el sonido <span class='target'>sc</span> como en <b>scat</b>?", options:["skin","scale","skip","risk"], answer:1, hint:"Busca la palabra que empieza con 's' y 'c' juntas."},
+  {sound:"sk", word:"skate", text:"¿Qué palabra empieza con el sonido <span class='target'>sk</span> como en <b>skate</b>?", options:["scope","scuff","sky","scat"], answer:2, hint:"Busca la palabra que empieza con 's' y 'k' juntas."},
+  {sound:"sm", word:"smoke", text:"¿Qué palabra empieza con el sonido <span class='target'>sm</span> como en <b>smoke</b>?", options:["speak","smell","spend","spine"], answer:1, hint:"Busca la palabra que empieza con 's' y 'm' juntas."},
+  {sound:"sp", word:"spade", text:"¿Qué palabra empieza con el sonido <span class='target'>sp</span> como en <b>spade</b>?", options:["smile","Smith","spot","-"], answer:2, hint:"Busca la palabra que empieza con 's' y 'p' juntas."},
+  {sound:"cr", word:"crab", text:"¿Qué palabra empieza con el sonido <span class='target'>cr</span> como en <b>crab</b>?", options:["twist","crack","tweet","twig"], answer:1, hint:"Busca la palabra que empieza con 'c' y 'r' juntas."},
+  {sound:"tw", word:"twins", text:"¿Qué palabra empieza con el sonido <span class='target'>tw</span> como en <b>twins</b>?", options:["crisp","crane","tweet","crib"], answer:2, hint:"Busca la palabra que empieza con 't' y 'w' juntas."},
+  {sound:"spl", word:"splash", text:"¿Qué palabra empieza con el sonido <span class='target'>spl</span> como en <b>splash</b>?", options:["sprig","split","spray","sprint"], answer:1, hint:"Busca la palabra que empieza con 's', 'p' y 'l' juntas."},
+  {sound:"spr", word:"sprain", text:"¿Qué palabra empieza con el sonido <span class='target'>spr</span> como en <b>sprain</b>?", options:["splat","splint","sprint","split"], answer:2, hint:"Busca la palabra que empieza con 's', 'p' y 'r' juntas."},
+  {sound:"scr", word:"scream", text:"¿Qué palabra empieza con el sonido <span class='target'>scr</span> como en <b>scream</b>?", options:["squeal","squish","scrap","squeak"], answer:2, hint:"Busca la palabra que empieza con 's', 'c' y 'r' juntas."},
+  {sound:"squ", word:"squeak", text:"¿Qué palabra empieza con el sonido <span class='target'>squ</span> como en <b>squeak</b>?", options:["scrub","squeeze","scream","scram"], answer:1, hint:"Busca la palabra que empieza con 's', 'q' y 'u' juntas."},
+  {sound:"sn", word:"snack", text:"¿Qué palabra empieza con el sonido <span class='target'>sn</span> como en <b>snack</b>?", options:["slip","snug","slam","slide"], answer:1, hint:"Busca la palabra que empieza con 's' y 'n' juntas."},
+  {sound:"sl", word:"sleep", text:"¿Qué palabra empieza con el sonido <span class='target'>sl</span> como en <b>sleep</b>?", options:["snap","slide","snail","-"], answer:1, hint:"Busca la palabra que empieza con 's' y 'l' juntas."},
+  {sound:"str", word:"stream", text:"¿Qué palabra empieza con el sonido <span class='target'>str</span> como en <b>stream</b>?", options:["sweep","street","swell","swam"], answer:1, hint:"Busca la palabra que empieza con 's', 't' y 'r' juntas."},
+  {sound:"sw", word:"swim", text:"¿Qué palabra empieza con el sonido <span class='target'>sw</span> como en <b>swim</b>?", options:["strike","strain","sweet","stray"], answer:2, hint:"Busca la palabra que empieza con 's' y 'w' juntas."},
+  {sound:"thr", word:"three", text:"¿Qué palabra empieza con el sonido <span class='target'>thr</span> como en <b>three</b>?", options:["throne","arm","yard","spark"], answer:0, hint:"Busca la palabra que empieza con 't', 'h' y 'r' juntas."},
+  {sound:"ar", word:"stars", text:"¿Qué palabra tiene el sonido <span class='target'>ar</span> como en <b>stars</b>?", options:["thrush","dark","throat","thrill"], answer:1, hint:"El sonido 'ar' suena como la 'r' fuerte del inglés."},
+  {sound:"ch", word:"church", text:"¿Qué palabra empieza con el sonido <span class='target'>ch</span> como en <b>church</b>?", options:["fork","chip","corn","storm"], answer:1, hint:"El sonido 'ch' suena como 'cho-cho' del tren."},
+  {sound:"or", word:"morning", text:"¿Qué palabra tiene el sonido <span class='target'>or</span> como en <b>morning</b>?", options:["chin","rich","corn","cheese"], answer:2, hint:"El sonido 'or' suena como 'or' alargado."},
+  {sound:"ou", word:"out", text:"¿Qué palabra tiene el sonido <span class='target'>ou</span> como en <b>out</b>?", options:["now","shout","brown","frown"], answer:1, hint:"El sonido 'ou' suena como 'au' en español."},
+  {sound:"ow (owl)", word:"owl", text:"¿Qué palabra tiene el sonido <span class='target'>ow</span> (fuerte) como en <b>owl</b>?", options:["bow","cow","glow","flow"], answer:1, hint:"Este 'ow' suena como 'au', no como 'o' larga."},
+  {sound:"ow (bowl)", word:"bowl", text:"¿Qué palabra tiene el sonido <span class='target'>ow</span> (suave) como en <b>bowl</b>?", options:["row","now","brown","crown"], answer:0, hint:"Este 'ow' suena como una 'o' larga, no como 'au'."},
+  {sound:"er/ur/ir", word:"bird", text:"¿Qué palabra tiene el sonido de <span class='target'>ir</span> como en <b>bird</b>?", options:["fern","burn","girl","-"], answer:2, hint:"Los tres (er, ur, ir) suenan igual: como una 'r' que vibra."},
+  {sound:"oi", word:"coin", text:"¿Qué palabra tiene el sonido <span class='target'>oi</span> como en <b>coin</b>?", options:["joy","oil","toy","boy"], answer:1, hint:"El sonido 'oi' va en medio de la palabra, no al final."},
+  {sound:"oy", word:"boy", text:"¿Qué palabra tiene el sonido <span class='target'>oy</span> como en <b>boy</b>?", options:["oil","spoil","toy","point"], answer:2, hint:"El sonido 'oy' suele ir al final de la palabra."},
+  {sound:"oo (book)", word:"book", text:"¿Qué palabra tiene el sonido <span class='target'>oo</span> corto como en <b>book</b>?", options:["pool","cook","goose","root"], answer:1, hint:"Este 'oo' es un sonido corto, como en 'cook'."},
+  {sound:"oo (tooth)", word:"tooth", text:"¿Qué palabra tiene el sonido <span class='target'>oo</span> largo como en <b>tooth</b>?", options:["look","hook","scoot","foot"], answer:2, hint:"Este 'oo' es un sonido largo, como en 'moon'."},
+  {sound:"igh", word:"night", text:"¿Qué palabra tiene el sonido <span class='target'>igh</span> como en <b>night</b>?", options:["word","worth","bright","worse"], answer:2, hint:"El sonido 'igh' se escucha como una 'i' larga."},
+  {sound:"all", word:"ball", text:"¿Qué palabra tiene el sonido <span class='target'>all</span> como en <b>ball</b>?", options:["talk","small","stalk","chalk"], answer:1, hint:"El sonido 'all' suena como 'ol' alargado."},
+  {sound:"alk", word:"walk", text:"¿Qué palabra tiene el sonido <span class='target'>alk</span> como en <b>walk</b>?", options:["hall","call","talk","stall"], answer:2, hint:"El sonido 'alk' suena como 'ok', la 'l' es muda."},
+  {sound:"kn", word:"knot", text:"¿Qué palabra empieza con el sonido <span class='target'>kn</span> como en <b>knot</b>?", options:["gnats","knee","gnash","-"], answer:1, hint:"La 'k' es muda; solo se escucha la 'n'."},
+  {sound:"gn", word:"gnat", text:"¿Qué palabra empieza con el sonido <span class='target'>gn</span> como en <b>gnat</b>?", options:["kneel","knife","gnash","knock"], answer:2, hint:"La 'g' es muda; solo se escucha la 'n'."},
+  {sound:"ing", word:"king", text:"¿Qué palabra tiene el sonido <span class='target'>ing</span> como en <b>king</b>?", options:["fang","wing","long","lung"], answer:1, hint:"El sonido 'ing' termina en una nariz nasal, como 'sing'."},
+  {sound:"ank", word:"bank", text:"¿Qué palabra tiene el sonido <span class='target'>ank</span> como en <b>bank</b>?", options:["pink","sank","honk","dunk"], answer:1, hint:"El sonido 'ank' tiene la 'a' antes de 'nk'."},
+  {sound:"ink", word:"wink", text:"¿Qué palabra tiene el sonido <span class='target'>ink</span> como en <b>wink</b>?", options:["blink","drank","honk","trunk"], answer:0, hint:"El sonido 'ink' tiene la 'i' antes de 'nk'."},
+  {sound:"y (baby)", word:"baby", text:"¿Qué palabra tiene el sonido de <span class='target'>y</span> al final como en <b>baby</b>?", options:["happy","middle","riddle","puzzle"], answer:0, hint:"La 'y' al final suena como una 'i'."},
+  {sound:"le (little)", word:"little", text:"¿Qué palabra tiene el sonido <span class='target'>le</span> al final como en <b>little</b>?", options:["puppy","middle","Tommy","penny"], answer:1, hint:"El sonido 'le' al final suena como 'el'."},
+  {sound:"wh", word:"whale", text:"¿Qué palabra empieza con el sonido <span class='target'>wh</span> como en <b>whale</b>?", options:["white","why","wheel","when"], answer:0, hint:"Todas estas empiezan con 'wh', ¡elige cualquiera con cuidado!"},
+  {sound:"ear (ear)", word:"ear", text:"¿Qué palabra tiene el sonido <span class='target'>ear</span> como en <b>ear</b>?", options:["hear","beard","spear","gear"], answer:0, hint:"El sonido 'ear' suena como 'ir' alargado."},
+  {sound:"tch", word:"patch", text:"¿Qué palabra tiene el sonido <span class='target'>tch</span> como en <b>patch</b>?", options:["catch","stitch","hatch","ditch"], answer:0, hint:"El sonido 'tch' suena igual que 'ch', va después de vocal corta."},
+  {sound:"ear (earth)", word:"earth", text:"¿Qué palabra tiene el sonido <span class='target'>ear</span> como en <b>earth</b>?", options:["earn","learn","search","pearl"], answer:0, hint:"Aquí 'ear' suena como 'er', no como 'ir'."},
+  {sound:"old", word:"gold", text:"¿Qué palabra tiene el sonido <span class='target'>old</span> como en <b>gold</b>?", options:["mold","told","sold","cold"], answer:0, hint:"El sonido 'old' tiene una 'o' larga antes de 'ld'."},
+  {sound:"mb", word:"lamb", text:"¿Qué palabra tiene la <span class='target'>mb</span> muda como en <b>lamb</b>?", options:["limb","climb","thumb","comb"], answer:0, hint:"La 'b' en 'mb' no se pronuncia."},
+  {sound:"ew (flew)", word:"flew", text:"¿Qué palabra tiene el sonido <span class='target'>ew</span> como en <b>flew</b>?", options:["crew","chew","blew","dew"], answer:0, hint:"El sonido 'ew' suena como 'u' larga."},
+  {sound:"ild", word:"child", text:"¿Qué palabra tiene el sonido <span class='target'>ild</span> como en <b>child</b>?", options:["wild","mild","wildly","milder"], answer:0, hint:"El sonido 'ild' tiene una 'i' larga antes de 'ld'."},
+  {sound:"ind", word:"kind", text:"¿Qué palabra tiene el sonido <span class='target'>ind</span> como en <b>kind</b>?", options:["find","mind","wind","blind"], answer:0, hint:"El sonido 'ind' tiene una 'i' larga antes de 'nd'."},
+  {sound:"c (city)", word:"city", text:"Cuando la <span class='target'>c</span> va seguida de e, i o y, suena como 's'. ¿Cuál palabra lo muestra?", options:["cent","face","choice","rice"], answer:0, hint:"Recuerda: c + e, i, y = sonido 's'."},
+  {sound:"au/aw", word:"saw", text:"¿Qué palabra tiene el sonido <span class='target'>aw</span> como en <b>saw</b>?", options:["cause","pause","raw","fault"], answer:2, hint:"El sonido 'aw' suena como una 'o' abierta y larga."},
+  {sound:"ea (leaf)", word:"leaf", text:"¿Qué palabra tiene el sonido <span class='target'>ea</span> largo como en <b>leaf</b>?", options:["sea","head","break","steak"], answer:0, hint:"Este 'ea' suena como una 'i' larga."},
+  {sound:"ea (thread)", word:"thread", text:"¿Qué palabra tiene el sonido <span class='target'>ea</span> corto como en <b>thread</b>?", options:["reach","head","beach","teach"], answer:1, hint:"Este 'ea' suena como una 'e' corta."},
+  {sound:"ie (brownie)", word:"brownie", text:"¿Qué palabra tiene el sonido <span class='target'>ie</span> como en <b>brownie</b>?", options:["thief","yield","field","shield"], answer:0, hint:"El sonido 'ie' suena como una 'i' larga."},
+  {sound:"ey (key)", word:"key", text:"¿Qué palabra tiene el sonido <span class='target'>ey</span> (i) como en <b>key</b>?", options:["turkey","honey","they","obey"], answer:0, hint:"Este 'ey' suena como una 'i' larga, no como 'ei'."},
+  {sound:"ph", word:"phone", text:"¿Qué palabra empieza con el sonido <span class='target'>ph</span> como en <b>phone</b>?", options:["phrase","graph","chord","chrome"], answer:0, hint:"El sonido 'ph' suena igual que la letra 'f'."},
+  {sound:"ought", word:"thought", text:"¿Qué palabra tiene el sonido <span class='target'>ought</span> como en <b>thought</b>?", options:["bought","taught","caught","naughty"], answer:0, hint:"El sonido 'ought' suena como 'ot' alargado."},
+  {sound:"g (giant)", word:"giant", text:"Cuando la <span class='target'>g</span> va seguida de e, i o y, suena como 'j'. ¿Cuál palabra lo muestra?", options:["page","huge","germs","gentle"], answer:0, hint:"Recuerda: g + e, i, y = sonido 'j'."},
+  {sound:"dge", word:"fudge", text:"¿Qué palabra tiene el sonido <span class='target'>dge</span> como en <b>fudge</b>?", options:["bridge","ledge","dodge","badge"], answer:0, hint:"El sonido 'dge' va después de una vocal corta."},
+  {sound:"wr", word:"wrinkle", text:"¿Qué palabra empieza con el sonido <span class='target'>wr</span> como en <b>wrinkle</b>?", options:["wrist","wrench","write","wrote"], answer:0, hint:"La 'w' es muda; solo se escucha la 'r'."},
+  {sound:"u (push)", word:"push", text:"¿Qué palabra tiene el sonido <span class='target'>u</span> corto como en <b>push</b>?", options:["push","pull","put","full"], answer:0, hint:"Este sonido de 'u' es corto, como en 'put'."},
+  {sound:"air (hair)", word:"hair", text:"¿Qué palabra tiene el sonido <span class='target'>air</span> como en <b>hair</b>?", options:["chair","airmail","fair","airplane"], answer:0, hint:"El sonido 'air' suena como 'er' alargado."},
+  {sound:"ough (enough)", word:"enough", text:"¿Qué palabra tiene el sonido <span class='target'>ough</span> como en <b>enough</b>?", options:["rough","tough","roughest","tougher"], answer:0, hint:"Aquí 'ough' suena como 'uf'."},
+  {sound:"arr (carry)", word:"carry", text:"¿Qué palabra tiene el sonido <span class='target'>arr</span> como en <b>carry</b>?", options:["marry","carrot","sparrow","parrot"], answer:0, hint:"El sonido 'arr' suena con una 'a' corta antes de la 'r' doble."},
+  {sound:"ire (fire)", word:"fire", text:"¿Qué palabra tiene el sonido <span class='target'>ire</span> como en <b>fire</b>?", options:["tire","spire","retire","admire"], answer:0, hint:"El sonido 'ire' suena como 'ai-r' alargado."},
+  {sound:"tain (mountain)", word:"mountain", text:"¿Qué palabra tiene el sonido <span class='target'>tain</span> como en <b>mountain</b>?", options:["fountain","captain","chieftain","-"], answer:0, hint:"El sonido 'tain' suena como 'ten' al final."},
+  {sound:"are (care)", word:"care", text:"¿Qué palabra tiene el sonido <span class='target'>are</span> como en <b>care</b>?", options:["mare","share","stare","bare"], answer:0, hint:"El sonido 'are' suena como 'er' alargado, con una 'a' larga."},
+  {sound:"ure (pure)", word:"pure", text:"¿Qué palabra tiene el sonido <span class='target'>ure</span> como en <b>pure</b>?", options:["cure","endure","impure","secure"], answer:0, hint:"El sonido 'ure' suena como 'iur'."},
+  {sound:"ture (pasture)", word:"pasture", text:"¿Qué palabra tiene el sonido <span class='target'>ture</span> como en <b>pasture</b>?", options:["capture","fracture","nature","lecture"], answer:0, hint:"El sonido 'ture' suena como 'cher' al final."},
+  {sound:"war (warm)", word:"warm", text:"¿Qué palabra tiene el sonido <span class='target'>war</span> como en <b>warm</b>?", options:["warn","warp","award","reward"], answer:0, hint:"El sonido 'war' suena como 'uor'."},
+  {sound:"tion (nation)", word:"nation", text:"¿Qué palabra tiene el sonido <span class='target'>tion</span> como en <b>nation</b>?", options:["motion","station","action","caution"], answer:0, hint:"El sonido 'tion' suena como 'shion'."},
+  {sound:"sion (missionary)", word:"missionary", text:"¿Qué palabra tiene el sonido <span class='target'>sion</span> como en <b>missionary</b>?", options:["permission","expression","confession","-"], answer:0, hint:"El sonido 'sion' aquí suena como 'shun'."},
+  {sound:"eigh (eight)", word:"eight", text:"¿Qué palabra tiene el sonido <span class='target'>eigh</span> como en <b>eight</b>?", options:["weigh","weight","freight","eighty"], answer:0, hint:"El sonido 'eigh' suena como una 'a' larga, como 'ei'."},
+  {sound:"sion (television)", word:"television", text:"¿Qué palabra tiene el sonido <span class='target'>sion</span> como en <b>television</b>?", options:["decision","vision","confusion","-"], answer:0, hint:"Este 'sion' suena como 'zhun', más suave que 'shun'."},
+  {sound:"or (sailor)", word:"sailor", text:"¿Qué palabra tiene el sonido <span class='target'>or</span> como en <b>sailor</b>?", options:["sailor","tailor","doctor","pastor"], answer:0, hint:"El sonido 'or' aquí suena como 'er' al final."},
+  {sound:"err (cherry)", word:"cherry", text:"¿Qué palabra tiene el sonido <span class='target'>err</span> como en <b>cherry</b>?", options:["berry","blueberry","strawberry","cranberry"], answer:0, hint:"El sonido 'err' suena como 'er' corto."}
+];
+
+const rulesBank = [
+  {topic:"Raíz y sufijo -ing", text:"En la palabra <b>fishing</b>, ¿cuál es la raíz (root word)?", options:["fish","ing","fishing","-"], answer:0, hint:"La raíz es la palabra original antes de agregar el sufijo."},
+  {topic:"Raíz y sufijo -ing", text:"En la palabra <b>growing</b>, ¿cuál es el sufijo?", options:["grow","ing","grew","-"], answer:1, hint:"El sufijo se agrega al final de la palabra raíz."},
+  {topic:"Sufijo -ed", text:"En la palabra <b>wanted</b>, ¿cuál es la raíz?", options:["want","ed","wanted","wante"], answer:0, hint:"Quita el sufijo '-ed' para encontrar la raíz."},
+  {topic:"Definición", text:"¿Qué es un 'root word' (palabra raíz)?", options:["La palabra con la que empezamos","Una letra al final de la palabra","Un signo de puntuación","Una palabra compuesta"], answer:0, hint:"Es la base de la palabra, antes de añadir prefijos o sufijos."},
+  {topic:"Definición", text:"¿Qué es un sufijo?", options:["Una letra al inicio de la palabra","Letras que se agregan al final de una palabra","Una palabra completa nueva","Un signo de exclamación"], answer:1, hint:"Sufijo = se agrega al final, como en 'point-ing'."},
+  {topic:"Regla: dividir sílabas", text:"En la palabra 'lady', se divide como 'lā|dy'. ¿Qué pasa con la vocal al final de la sílaba?", options:["Se vuelve muda","Usualmente es larga","Desaparece","Se duplica"], answer:1, hint:"Recuerda: una vocal al final de una sílaba usualmente suena larga."},
+  {topic:"Regla: doblar consonante", text:"Para escribir 'hop + ing', ¿qué se debe hacer primero?", options:["Doblar la 'p' → hopping","Quitar la 'h' → oping","Agregar una 'e' → hopeing","No cambia nada → hoping"], answer:0, hint:"Cuando la raíz termina en una consonante con vocal corta, se dobla la consonante antes de agregar el sufijo que empieza con vocal."},
+  {topic:"Regla: doblar consonante", text:"¿Cuál es la palabra correcta para 'run + ing'?", options:["runing","runening","running","runnning"], answer:2, hint:"Vocal corta + una consonante final = se dobla la consonante."},
+  {topic:"Sufijo -y / -er", text:"En la palabra 'dirty', ¿cuál es la raíz?", options:["dirt","y","dirty","dirtly"], answer:0, hint:"Quita el sufijo '-y' para hallar la raíz."},
+  {topic:"Sufijo -y / -er", text:"En la palabra 'helper', ¿cuál es el sufijo?", options:["help","er","helpe","-"], answer:1, hint:"El sufijo '-er' a veces indica 'alguien que hace algo' o comparación."},
+  {topic:"Sufijo -est / -ly", text:"En la palabra 'longest', ¿cuál es la raíz?", options:["long","est","longe","longes"], answer:0, hint:"Quita '-est' para encontrar la raíz."},
+  {topic:"Sufijo -est / -ly", text:"En la palabra 'softly', ¿cuál es el sufijo?", options:["soft","ly","softl","-"], answer:1, hint:"El sufijo '-ly' convierte palabras en adverbios, como 'rápidamente'."},
+  {topic:"Sufijo -en / -es", text:"En la palabra 'golden', ¿cuál es la raíz?", options:["gold","en","golde","-"], answer:0, hint:"Quita '-en' para encontrar la raíz."},
+  {topic:"Sufijo -en / -es", text:"En la palabra 'ditches', ¿cuál es la raíz?", options:["ditch","es","ditche","-"], answer:0, hint:"Quita '-es' para encontrar la raíz 'ditch'."},
+  {topic:"Regla: e muda", text:"Cuando una palabra termina en 'e' muda y el sufijo empieza con vocal, ¿qué se hace con la 'e'?", options:["Se mantiene siempre","Se duplica","Usualmente se elimina","Se cambia por 'a'"], answer:2, hint:"Ejemplo: shine + ing = shining (la 'e' se va)."},
+  {topic:"Regla: e muda", text:"¿Cuál es el resultado correcto de 'bake + ed'?", options:["bakeed","baked","bakked","bakied"], answer:1, hint:"Quita la 'e' muda de 'bake' antes de agregar '-ed'."},
+  {topic:"Regla: e muda", text:"¿Cuál es el resultado correcto de 'hike + ing'?", options:["hikeing","hikking","hiking","hikeng"], answer:2, hint:"Quita la 'e' muda de 'hike' antes de agregar '-ing'."},
+  {topic:"Prefijos", text:"¿Qué es un prefijo?", options:["Letras agregadas al final de la palabra","Letras agregadas al inicio de la palabra","Una palabra completamente nueva","Un signo de puntuación"], answer:1, hint:"Prefijo = se agrega al inicio, como en 'a-sleep'."},
+  {topic:"Prefijos", text:"En la palabra 'alone', ¿cuál es la raíz?", options:["lone","a","alon","-"], answer:0, hint:"Quita el prefijo 'a-' para encontrar la raíz 'lone'."},
+  {topic:"Prefijos", text:"¿Cuál de estas palabras tiene el prefijo 'un-'?", options:["unhook","behind","enlarge","almost"], answer:0, hint:"El prefijo 'un-' significa 'no' o lo opuesto, como en 'unhook'."},
+  {topic:"Prefijos", text:"¿Cuál de estas palabras tiene el prefijo 'en-'?", options:["enclose","because","unlock","beside"], answer:0, hint:"El prefijo 'en-' va al inicio, como en 'enclose'."},
+  {topic:"Sufijo -ful", text:"En la palabra 'joyful', ¿cuál es el sufijo?", options:["joy","ful","joyf","-"], answer:1, hint:"El sufijo '-ful' significa 'lleno de', como en 'joyful' (lleno de alegría)."},
+  {topic:"Regla: y → i", text:"¿Cómo se escribe 'sleepy + ier'?", options:["sleepyier","sleepier","sleepeir","sleepyer"], answer:1, hint:"Cuando la palabra termina en 'y' y el sufijo empieza con 'e', cambia la 'y' por 'i'."},
+  {topic:"Regla: y → i", text:"¿Cómo se escribe 'happy + er'?", options:["happyer","happier","happeir","happer"], answer:1, hint:"Cambia la 'y' por 'i' antes de agregar el sufijo que empieza con 'e'."},
+  {topic:"Regla: y → i", text:"¿Cómo se escribe 'dry + ed'?", options:["dryed","dried","driyed","dryied"], answer:1, hint:"Cambia la 'y' por 'i' y agrega '-ed': dry → dried."},
+  {topic:"Regla: y → i", text:"¿Cómo se escribe 'carry + ed'?", options:["carryed","carried","carryied","carred"], answer:1, hint:"Cambia la 'y' por 'i' y agrega '-ed': carry → carried."},
+  {topic:"Contracciones", text:"¿Qué es una contracción?", options:["Dos palabras separadas en una oración","Una palabra hecha de dos palabras usando un apóstrofo","Un sufijo especial","Una palabra raíz"], answer:1, hint:"Ejemplo: didn't = did not."},
+  {topic:"Contracciones", text:"¿Qué significa la contracción 'didn't'?", options:["did not","do not","does not","did never"], answer:0, hint:"El 'n't' siempre significa 'not'."},
+  {topic:"Contracciones", text:"¿Qué significa la contracción 'she'll'?", options:["she will","she well","she shall not","she is"], answer:0, hint:"El ''ll' siempre significa 'will'."},
+  {topic:"Contracciones", text:"¿Qué significa la contracción 'isn't'?", options:["is not","I am not","is never","I will not"], answer:0, hint:"El 'n't' siempre significa 'not'."},
+  {topic:"Contracciones", text:"¿Qué significa la contracción 'I'll'?", options:["I will","I shall not","I am","I will not"], answer:0, hint:"El ''ll' siempre significa 'will'."}
+];
+
+const finalBank = soundsBank.concat(rulesBank);
+
+/* ===================== ESTADO ===================== */
+let currentBank = [];
+let currentIndex = 0;
+let score = 0;
+let lives = 3;
+let answeredCorrectly = [];
+let activeSetName = "";
+let QUIZ_SIZE = 10;
+
+const dashboard = document.getElementById('dashboard');
+const quizScreen = document.getElementById('quizScreen');
+const qCard = document.getElementById('qCard');
+const resultsCard = document.getElementById('resultsCard');
+
+/* ===================== UTILIDADES ===================== */
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function pickSet(bank, size){
+  return shuffle(bank).slice(0, Math.min(size, bank.length));
+}
+
+function getBestScore(key){
+  try{
+    const v = localStorage.getItem('reto_'+key);
+    return v ? parseInt(v) : 0;
+  }catch(e){ return 0; }
+}
+function setBestScore(key, pct){
+  try{
+    const prev = getBestScore(key);
+    if(pct > prev) localStorage.setItem('reto_'+key, pct);
+  }catch(e){}
+}
+function updateGlobalBest(){
+  try{
+    let keys = ['ck-tch','st-th','sn-tion','final-1','final-2','final-3','rules-1','rules-2'];
+    let best = 0;
+    keys.forEach(k=>{ const v=getBestScore(k); if(v>best) best=v; });
+    document.getElementById('bestScore').textContent = best+'%';
+  }catch(e){}
+}
+
+/* ===================== ESTACIONES ===================== */
+const soundsStationsConfig = [
+  {key:'ck-tch', icon:'🦆', title:'Digrafos y blends I', desc:'ck, ay, st, pl, fr, tr, sh, th...', from:0, to:14},
+  {key:'st-th', icon:'🐸', title:'Digrafos y blends II', desc:'sc, sk, sm, sp, cr, tw, spl, spr, scr...', from:14, to:32},
+  {key:'or-igh', icon:'🌙', title:'Sonidos de vocales I', desc:'ch, or, ou, ow, er/ur/ir, oi, oy, oo...', from:32, to:46},
+  {key:'all-le', icon:'🔔', title:'Sonidos de vocales II', desc:'all, alk, kn, gn, ing, ank, ink, y, le, wh...', from:46, to:58},
+  {key:'tch-mb', icon:'🧦', title:'Sonidos especiales III', desc:'ear, tch, old, mb, ew, ild, ind, c suave...', from:58, to:68},
+  {key:'aw-ph', icon:'🪓', title:'Sonidos especiales IV', desc:'au/aw, ea, ie, ey, ph, ought, g suave, dge...', from:68, to:78},
+  {key:'wr-err', icon:'🌳', title:'Sonidos especiales V', desc:'wr, air, ough, arr, ire, tain, are, ture, war, tion, sion...', from:78, to:soundsBank.length}
+];
+
+const rulesStationsConfig = [
+  {key:'rules-1', icon:'🌱', title:'Raíz y sufijos', desc:'-ing, -ed, -y, -er, -est, -ly, -en, -es', from:0, to:14},
+  {key:'rules-2', icon:'🍯', title:'Reglas de ortografía', desc:'e muda, doblar consonante, y → i', from:14, to:26},
+  {key:'rules-3', icon:'🎈', title:'Prefijos y contracciones', desc:'a-, un-, en-, be-, -ful, contracciones', from:26, to:rulesBank.length}
+];
+
+function renderStations(){
+  const soundsBox = document.getElementById('soundsStations');
+  const rulesBox = document.getElementById('rulesStations');
+  const finalBox = document.getElementById('finalStations');
+  document.getElementById('soundsCount').textContent = soundsBank.length + ' sonidos para practicar';
+  document.getElementById('rulesCount').textContent = rulesBank.length + ' reglas para practicar';
+
+  soundsBox.innerHTML = '';
+  soundsStationsConfig.forEach(cfg=>{
+    const best = getBestScore(cfg.key);
+    soundsBox.appendChild(stationCard('sounds', cfg, best));
+  });
+
+  rulesBox.innerHTML = '';
+  rulesStationsConfig.forEach(cfg=>{
+    const best = getBestScore(cfg.key);
+    rulesBox.appendChild(stationCard('rules', cfg, best));
+  });
+
+  finalBox.innerHTML = '';
+  const finalCfg = {key:'final-1', icon:'🏆', title:'Reto Valiente Final', desc:'15 preguntas mezcladas de todo lo aprendido. ¡El examen de verdad!', from:0, to:finalBank.length, isFull:true};
+  const bestFinal = getBestScore('final-1');
+  finalBox.appendChild(stationCard('final', finalCfg, bestFinal));
+
+  updateGlobalBest();
+}
+
+function stationCard(type, cfg, best){
+  const div = document.createElement('div');
+  div.className = 'station ' + type;
+  div.innerHTML = `
+    <div class="ring">${best}%</div>
+    <div class="icon">${cfg.icon}</div>
+    <h3>${cfg.title}</h3>
+    <p>${cfg.desc}</p>
+  `;
+  div.addEventListener('click', ()=> startQuiz(type, cfg));
+  return div;
+}
+
+/* ===================== QUIZ ===================== */
+function startQuiz(type, cfg){
+  let bank;
+  if(type==='sounds') bank = soundsBank.slice(cfg.from, cfg.to);
+  else if(type==='rules') bank = rulesBank.slice(cfg.from, cfg.to);
+  else bank = finalBank;
+
+  activeSetName = cfg.key;
+  QUIZ_SIZE = cfg.isFull ? 15 : Math.min(10, bank.length);
+  currentBank = pickSet(bank, QUIZ_SIZE);
+  currentIndex = 0;
+  score = 0;
+  lives = 3;
+  answeredCorrectly = [];
+
+  dashboard.style.display = 'none';
+  quizScreen.classList.add('active');
+  qCard.style.display = 'block';
+  resultsCard.classList.remove('show');
+
+  renderQuestion();
+}
+
+function renderQuestion(){
+  const q = currentBank[currentIndex];
+  document.getElementById('qLabel').textContent = (currentIndex+1) + ' / ' + currentBank.length;
+  document.getElementById('progressFill').style.width = (currentIndex/currentBank.length*100) + '%';
+  document.getElementById('livesDisplay').textContent = '❤️'.repeat(lives) + '🖤'.repeat(3-lives);
+  document.getElementById('qEyebrow').textContent = q.sound ? 'SONIDO ESPECIAL · ' + q.sound : (q.topic || 'REGLA');
+  document.getElementById('qText').innerHTML = q.text;
+  document.getElementById('qHint').textContent = q.hint || '';
+  document.getElementById('qHint').classList.remove('show');
+
+  const optionsBox = document.getElementById('optionsBox');
+  optionsBox.innerHTML = '';
+  const letters = ['A','B','C','D'];
+
+  // Build options preserving correct index but filter out placeholder "-"
+  let opts = q.options.map((o,i)=>({text:o, isCorrect:i===q.answer})).filter(o=>o.text!=='-');
+  opts = shuffle(opts);
+
+  opts.forEach((opt, idx)=>{
+    const btn = document.createElement('div');
+    btn.className = 'opt';
+    btn.innerHTML = `<span class="letter">${letters[idx]}</span><span>${opt.text}</span>`;
+    btn.addEventListener('click', ()=> selectAnswer(btn, opt.isCorrect, opts));
+    optionsBox.appendChild(btn);
+  });
+
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('nextBtn').classList.remove('show');
+}
+
+document.getElementById('hintBtn').addEventListener('click', ()=>{
+  document.getElementById('qHint').classList.add('show');
+});
+
+function selectAnswer(btnEl, isCorrect, opts){
+  const allOpts = document.querySelectorAll('#optionsBox .opt');
+  allOpts.forEach(o=> o.classList.add('disabled'));
+
+  const feedback = document.getElementById('feedback');
+  if(isCorrect){
+    btnEl.classList.add('correct');
+    score++;
+    answeredCorrectly.push(true);
+    feedback.className = 'feedback show good';
+    feedback.innerHTML = '🎉 ¡Correcto! El osito está orgulloso de ti.';
+  }else{
+    btnEl.classList.add('wrong');
+    lives = Math.max(0, lives-1);
+    answeredCorrectly.push(false);
+    // highlight correct one
+    allOpts.forEach((el, idx)=>{
+      if(opts[idx] && opts[idx].isCorrect) el.classList.add('correct');
+    });
+    feedback.className = 'feedback show bad';
+    feedback.innerHTML = '🌧️ ¡Casi! Sigue practicando, vas muy bien.';
+  }
+  document.getElementById('livesDisplay').textContent = '❤️'.repeat(lives) + '🖤'.repeat(3-lives);
+  document.getElementById('nextBtn').classList.add('show');
+}
+
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  currentIndex++;
+  if(currentIndex >= currentBank.length){
+    showResults();
+  }else{
+    renderQuestion();
+  }
+});
+
+document.getElementById('backBtn').addEventListener('click', ()=>{
+  quizScreen.classList.remove('active');
+  dashboard.style.display = 'block';
+  renderStations();
+});
+
+function showResults(){
+  document.getElementById('progressFill').style.width = '100%';
+  qCard.style.display = 'none';
+  resultsCard.classList.add('show');
+
+  const pct = Math.round((score/currentBank.length)*100);
+  setBestScore(activeSetName, pct);
+
+  let medal, title, msg;
+  if(pct >= 90){ medal='🏅'; title='¡Eres un campeón valiente!'; msg='Pedro, lo dominaste casi todo. ¡El osito Remember! está saltando de alegría!'; }
+  else if(pct >= 70){ medal='🥈'; title='¡Muy buen trabajo!'; msg='Vas muy bien. Repasa un poquito más y la próxima será perfecta.'; }
+  else if(pct >= 50){ medal='🥉'; title='¡Vas por buen camino!'; msg='Sigamos practicando juntos esta estación, ¡tú puedes lograrlo!'; }
+  else { medal='🌱'; title='¡Sigue intentando!'; msg='Esta estación necesita un poco más de práctica. ¡Repite el reto cuando quieras!'; }
+
+  document.getElementById('resultMedal').textContent = medal;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultScore').textContent = score + '/' + currentBank.length + ' (' + pct + '%)';
+  document.getElementById('resultMsg').textContent = msg;
+
+  const reviewList = document.getElementById('reviewList');
+  reviewList.innerHTML = '<h3 style="font-size:1rem;color:var(--bark);margin-bottom:6px;">Repaso rápido:</h3>';
+  currentBank.forEach((q, i)=>{
+    const ok = answeredCorrectly[i];
+    const div = document.createElement('div');
+    div.className = 'review-item ' + (ok ? 'hit':'miss');
+    div.innerHTML = `<span class="ic">${ok?'✅':'❌'}</span><span>${(q.sound? q.sound : q.topic) || ''} — respuesta: <b>${q.options[q.answer]}</b></span>`;
+    reviewList.appendChild(div);
+  });
+}
+
+document.getElementById('retryBtn').addEventListener('click', ()=>{
+  currentBank = pickSet(currentBank, currentBank.length);
+  currentIndex = 0; score = 0; lives = 3; answeredCorrectly = [];
+  qCard.style.display = 'block';
+  resultsCard.classList.remove('show');
+  renderQuestion();
+});
+
+document.getElementById('homeBtn').addEventListener('click', ()=>{
+  quizScreen.classList.remove('active');
+  dashboard.style.display = 'block';
+  renderStations();
+});
+
+/* ===================== INIT ===================== */
+renderStations();
+</script>
+</body>
+</html>
