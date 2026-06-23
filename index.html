@@ -197,27 +197,45 @@
   }
   .q-text{font-size:1.3rem; line-height:1.4; color:var(--ink); margin-bottom:22px;}
   .q-text .target{color:var(--pumpkin-deep); font-weight:800;}
+  .hint-row{display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap;}
   .q-hint-btn{
     background:none; border:2px dashed var(--sky); color:var(--sky-deep);
     border-radius:14px; padding:8px 14px; font-weight:700; font-size:0.8rem; cursor:pointer;
-    margin-bottom:18px;
   }
   .q-hint-btn:hover{background:rgba(62,124,184,0.08);}
+  .sound-btn{
+    background:var(--sky); border:none; color:#fff;
+    border-radius:14px; padding:8px 14px; font-weight:700; font-size:0.8rem; cursor:pointer;
+    display:flex; align-items:center; gap:6px;
+    box-shadow:0 3px 0 var(--sky-deep);
+  }
+  .sound-btn:hover{background:var(--sky-deep);}
+  .sound-btn:active{transform:translateY(2px); box-shadow:0 1px 0 var(--sky-deep);}
+  .sound-btn.playing{background:var(--pumpkin); box-shadow:0 3px 0 var(--pumpkin-deep);}
   .q-hint{
     display:none; background:#EAF3FB; border-radius:14px; padding:12px 16px;
     font-size:0.88rem; color:var(--sky-deep); margin-bottom:18px; line-height:1.4;
   }
   .q-hint.show{display:block;}
+  .opt-sound{
+    flex-shrink:0; width:34px; height:34px; border-radius:50%;
+    background:rgba(255,255,255,0.6); border:2px solid rgba(0,0,0,0.08);
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.95rem; cursor:pointer; margin-left:auto;
+  }
+  .opt-sound:hover{background:#fff;}
+  .opt-sound.playing{background:var(--gold);}
 
   .options{display:grid; gap:12px;}
   .opt{
     display:flex; align-items:center; gap:12px;
     background:var(--cream); border:3px solid var(--cream-2);
-    border-radius:16px; padding:14px 16px;
+    border-radius:16px; padding:12px 12px 12px 16px;
     font-size:1.05rem; font-weight:700; color:var(--ink);
     cursor:pointer; text-align:left;
     transition:transform .1s ease, border-color .15s ease, background .15s ease;
   }
+  .opt .opt-text{flex:1;}
   .opt:hover{border-color:var(--sky); transform:translateX(3px);}
   .opt .letter{
     width:30px;height:30px;border-radius:50%;
@@ -231,6 +249,7 @@
   .opt.wrong .letter{background:var(--coral); color:#fff; border-color:var(--coral);}
   .opt.disabled{cursor:default; pointer-events:none; opacity:0.55;}
   .opt.disabled.correct, .opt.disabled.wrong{opacity:1;}
+  .opt.disabled .opt-sound{pointer-events:auto; cursor:pointer;}
 
   .feedback{
     margin-top:18px; padding:14px 18px; border-radius:14px;
@@ -361,7 +380,10 @@
     <div class="q-card" id="qCard">
       <span class="q-eyebrow" id="qEyebrow">SONIDO ESPECIAL</span>
       <div class="q-text" id="qText">Pregunta aquí</div>
-      <button class="q-hint-btn" id="hintBtn">💡 Pista</button>
+      <div class="hint-row">
+        <button class="q-hint-btn" id="hintBtn">💡 Pista</button>
+        <button class="sound-btn" id="soundBtn">🔊 Escuchar</button>
+      </div>
       <div class="q-hint" id="qHint"></div>
       <div class="options" id="optionsBox"></div>
       <div class="feedback" id="feedback"></div>
@@ -664,7 +686,12 @@ function renderQuestion(){
   opts.forEach((opt, idx)=>{
     const btn = document.createElement('div');
     btn.className = 'opt';
-    btn.innerHTML = `<span class="letter">${letters[idx]}</span><span>${opt.text}</span>`;
+    btn.innerHTML = `<span class="letter">${letters[idx]}</span><span class="opt-text">${opt.text}</span><span class="opt-sound" title="Escuchar">🔊</span>`;
+    const optSoundBtn = btn.querySelector('.opt-sound');
+    optSoundBtn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      speakWord(opt.text, optSoundBtn);
+    });
     btn.addEventListener('click', ()=> selectAnswer(btn, opt.isCorrect, opts));
     optionsBox.appendChild(btn);
   });
@@ -676,6 +703,50 @@ function renderQuestion(){
 document.getElementById('hintBtn').addEventListener('click', ()=>{
   document.getElementById('qHint').classList.add('show');
 });
+
+document.getElementById('soundBtn').addEventListener('click', ()=>{
+  const q = currentBank[currentIndex];
+  const wordToSpeak = q.word || q.options[q.answer];
+  speakWord(wordToSpeak, document.getElementById('soundBtn'));
+});
+
+/* ===================== TEXTO A VOZ (inglés) ===================== */
+let cachedVoice = null;
+function getEnglishVoice(){
+  if(cachedVoice) return cachedVoice;
+  if(!window.speechSynthesis) return null;
+  const voices = window.speechSynthesis.getVoices();
+  cachedVoice = voices.find(v=> v.lang === 'en-US') ||
+                voices.find(v=> v.lang && v.lang.startsWith('en')) || null;
+  return cachedVoice;
+}
+if(window.speechSynthesis){
+  window.speechSynthesis.onvoiceschanged = ()=>{ cachedVoice = null; getEnglishVoice(); };
+}
+
+function speakWord(word, btnEl){
+  if(!window.speechSynthesis){
+    if(btnEl){
+      const original = btnEl.innerHTML;
+      btnEl.innerHTML = btnEl.classList.contains('opt-sound') ? '🚫' : '🚫 No disponible';
+      setTimeout(()=>{ btnEl.innerHTML = original; }, 1200);
+    }
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(word);
+  utter.lang = 'en-US';
+  utter.rate = 0.82;
+  utter.pitch = 1.05;
+  const voice = getEnglishVoice();
+  if(voice) utter.voice = voice;
+
+  if(btnEl) btnEl.classList.add('playing');
+  utter.onend = ()=>{ if(btnEl) btnEl.classList.remove('playing'); };
+  utter.onerror = ()=>{ if(btnEl) btnEl.classList.remove('playing'); };
+  window.speechSynthesis.speak(utter);
+}
+
 
 function selectAnswer(btnEl, isCorrect, opts){
   const allOpts = document.querySelectorAll('#optionsBox .opt');
