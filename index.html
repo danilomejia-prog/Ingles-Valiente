@@ -2,8 +2,24 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>El Reto Valiente de Pedro 🌲</title>
+
+<!-- PWA: instalable en iOS y Android -->
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#2C5C44">
+<meta name="mobile-web-app-capable" content="yes">
+
+<!-- iOS specific (Safari no lee manifest.json del todo) -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Reto Valiente">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+
+<!-- Favicon / iconos -->
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -217,20 +233,26 @@
     font-size:0.88rem; color:var(--sky-deep); margin-bottom:18px; line-height:1.4;
   }
   .q-hint.show{display:block;}
-  .opt-sound{
-    flex-shrink:0; width:34px; height:34px; border-radius:50%;
-    background:rgba(255,255,255,0.6); border:2px solid rgba(0,0,0,0.08);
-    display:flex; align-items:center; justify-content:center;
-    font-size:0.95rem; cursor:pointer; margin-left:auto;
+  .opt-row{
+    display:flex; align-items:stretch; gap:12px;
   }
-  .opt-sound:hover{background:#fff;}
-  .opt-sound.playing{background:var(--gold);}
+  .opt-sound{
+    flex-shrink:0; width:52px; height:auto; min-height:52px; border-radius:14px;
+    background:var(--paper); border:3px solid var(--cream-2);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.3rem; cursor:pointer;
+    box-shadow:0 3px 0 var(--cream-2);
+  }
+  .opt-sound:hover{border-color:var(--sky); background:#EAF3FB;}
+  .opt-sound:active{transform:translateY(2px); box-shadow:0 1px 0 var(--cream-2);}
+  .opt-sound.playing{background:var(--gold); border-color:var(--gold); color:#fff;}
 
   .options{display:grid; gap:12px;}
   .opt{
-    display:flex; align-items:center; gap:12px;
+    flex:1;
+    display:flex; align-items:center; gap:14px;
     background:var(--cream); border:3px solid var(--cream-2);
-    border-radius:16px; padding:12px 12px 12px 16px;
+    border-radius:16px; padding:14px 16px;
     font-size:1.05rem; font-weight:700; color:var(--ink);
     cursor:pointer; text-align:left;
     transition:transform .1s ease, border-color .15s ease, background .15s ease;
@@ -249,7 +271,6 @@
   .opt.wrong .letter{background:var(--coral); color:#fff; border-color:var(--coral);}
   .opt.disabled{cursor:default; pointer-events:none; opacity:0.55;}
   .opt.disabled.correct, .opt.disabled.wrong{opacity:1;}
-  .opt.disabled .opt-sound{pointer-events:auto; cursor:pointer;}
 
   .feedback{
     margin-top:18px; padding:14px 18px; border-radius:14px;
@@ -684,16 +705,26 @@ function renderQuestion(){
   opts = shuffle(opts);
 
   opts.forEach((opt, idx)=>{
+    const row = document.createElement('div');
+    row.className = 'opt-row';
+
     const btn = document.createElement('div');
     btn.className = 'opt';
-    btn.innerHTML = `<span class="letter">${letters[idx]}</span><span class="opt-text">${opt.text}</span><span class="opt-sound" title="Escuchar">🔊</span>`;
-    const optSoundBtn = btn.querySelector('.opt-sound');
-    optSoundBtn.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      speakWord(opt.text, optSoundBtn);
-    });
+    btn.innerHTML = `<span class="letter">${letters[idx]}</span><span class="opt-text">${opt.text}</span>`;
     btn.addEventListener('click', ()=> selectAnswer(btn, opt.isCorrect, opts));
-    optionsBox.appendChild(btn);
+
+    const soundBtn = document.createElement('div');
+    soundBtn.className = 'opt-sound';
+    soundBtn.title = 'Escuchar';
+    soundBtn.textContent = '🔊';
+    soundBtn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      speakWord(opt.text, soundBtn);
+    });
+
+    row.appendChild(btn);
+    row.appendChild(soundBtn);
+    optionsBox.appendChild(row);
   });
 
   document.getElementById('feedback').className = 'feedback';
@@ -724,6 +755,17 @@ if(window.speechSynthesis){
   window.speechSynthesis.onvoiceschanged = ()=>{ cachedVoice = null; getEnglishVoice(); };
 }
 
+// iOS y iPadOS (incluyendo iPads que se reportan como "Mac" con soporte táctil)
+// interpretan utterance.rate distinto a otros navegadores, y suelen sonar más
+// rápido de lo esperado incluso con valores bajos. Les damos un rate menor.
+function isAppleTouchDevice(){
+  const ua = navigator.userAgent || '';
+  const isIOS = /iPad|iPhone|iPod/.test(ua);
+  const isIPadOSAsMac = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+  return isIOS || isIPadOSAsMac;
+}
+const SPEECH_RATE = isAppleTouchDevice() ? 0.4 : 0.65;
+
 function speakWord(word, btnEl){
   if(!window.speechSynthesis){
     if(btnEl){
@@ -736,8 +778,8 @@ function speakWord(word, btnEl){
   window.speechSynthesis.cancel();
   const utter = new SpeechSynthesisUtterance(word);
   utter.lang = 'en-US';
-  utter.rate = 0.82;
-  utter.pitch = 1.05;
+  utter.rate = SPEECH_RATE;
+  utter.pitch = 1.0;
   const voice = getEnglishVoice();
   if(voice) utter.voice = voice;
 
@@ -746,6 +788,7 @@ function speakWord(word, btnEl){
   utter.onerror = ()=>{ if(btnEl) btnEl.classList.remove('playing'); };
   window.speechSynthesis.speak(utter);
 }
+
 
 
 function selectAnswer(btnEl, isCorrect, opts){
@@ -835,6 +878,16 @@ document.getElementById('homeBtn').addEventListener('click', ()=>{
 
 /* ===================== INIT ===================== */
 renderStations();
+
+/* ===================== PWA: registrar service worker ===================== */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('./sw.js').catch(()=>{
+      // si falla (ej. abierto como archivo local sin servidor), la app sigue funcionando igual
+    });
+  });
+}
+
 </script>
 </body>
 </html>
